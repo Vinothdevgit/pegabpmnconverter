@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/test">
+  <process id="convertedProcess" name="Pega Converted Process" isExecutable="true">
+    <startEvent id="startEvent0"></startEvent>
+    <subProcess id="subProcess0" name="Sub process 6"></subProcess>
+    <subProcess id="subProcess1" name="Sub process 13"></subProcess>
+    <subProcess id="subProcess2" name="Sub Process 12"></subProcess>
+    <subProcess id="subProcess3" name="Sub process 8"></subProcess>
+    <subProcess id="subProcess4" name="Sub process 11"></subProcess>
+    <subProcess id="subProcess5" name="Sub process 1"></subProcess>
+    <subProcess id="subProcess6" name="Sub process 3"></subProcess>
+    <subProcess id="subProcess7" name="Sub process 4"></subProcess>
+    <subProcess id="subProcess8" name="Sub process 10"></subProcess>
+    <subProcess id="subProcess9" name="Sub process 5"></subProcess>
+    <subProcess id="subProcess10" name="Sub process 7"></subProcess>
+    <subProcess id="subProcess11" name="Sub process 9"></subProcess>
+    <subProcess id="subProcess12" name="Sub process 2"></subProcess>
+    <serviceTask id="serviceTask0" name="Service 1"></serviceTask>
+    <serviceTask id="serviceTask1" name="Service 2"></serviceTask>
+    <exclusiveGateway id="gateway0" name="Decision 8"></exclusiveGateway>
+    <exclusiveGateway id="gateway1" name="Decision 5"></exclusiveGateway>
+    <exclusiveGateway id="gateway2" name="Decision 2"></exclusiveGateway>
+    <exclusiveGateway id="gateway3" name="Decision 6"></exclusiveGateway>
+    <exclusiveGateway id="gateway4" name="Decision 3"></exclusiveGateway>
+    <exclusiveGateway id="gateway5" name="Decision 7"></exclusiveGateway>
+    <exclusiveGateway id="gateway6" name="Decision 4"></exclusiveGateway>
+    <exclusiveGateway id="gateway7" name="Decision1"></exclusiveGateway>
+    <sequenceFlow id="flow0" name="Approved" sourceRef="subProcess6" targetRef="subProcess7"></sequenceFlow>
+    <sequenceFlow id="flow1" name="Approved" sourceRef="subProcess12" targetRef="subProcess6"></sequenceFlow>
+    <sequenceFlow id="flow2" name="[Always]" sourceRef="startEvent0" targetRef="subProcess5"></sequenceFlow>
+    <sequenceFlow id="flow4" name="Else" sourceRef="gateway5" targetRef="subProcess4"></sequenceFlow>
+    <sequenceFlow id="flow6" name="Approved" sourceRef="subProcess9" targetRef="gateway4"></sequenceFlow>
+    <sequenceFlow id="flow7" name="Branch 3" sourceRef="gateway4" targetRef="serviceTask0"></sequenceFlow>
+    <sequenceFlow id="flow9" name="[Else]" sourceRef="gateway3" targetRef="subProcess1"></sequenceFlow>
+    <sequenceFlow id="flow10" name="[Always]" sourceRef="subProcess3" targetRef="gateway6"></sequenceFlow>
+    <sequenceFlow id="flow11" name="[Always]" sourceRef="serviceTask0" targetRef="gateway3"></sequenceFlow>
+    <sequenceFlow id="flow12" name="Approved" sourceRef="subProcess0" targetRef="gateway2"></sequenceFlow>
+    <sequenceFlow id="flow13" name="[Always]" sourceRef="subProcess1" targetRef="serviceTask1"></sequenceFlow>
+    <sequenceFlow id="flow14" name="Rejected" sourceRef="subProcess0" targetRef="subProcess5"></sequenceFlow>
+    <sequenceFlow id="flow16" name="Approved" sourceRef="subProcess10" targetRef="subProcess9"></sequenceFlow>
+    <sequenceFlow id="flow17" name="[Else]" sourceRef="gateway2" targetRef="subProcess9"></sequenceFlow>
+    <sequenceFlow id="flow18" name="Branch 2" sourceRef="gateway2" targetRef="subProcess10"></sequenceFlow>
+    <sequenceFlow id="flow19" name="Rejected" sourceRef="subProcess7" targetRef="subProcess5"></sequenceFlow>
+    <sequenceFlow id="flow20" name="[Else]" sourceRef="gateway4" targetRef="subProcess3"></sequenceFlow>
+    <sequenceFlow id="flow21" name="[Else]" sourceRef="gateway1" targetRef="subProcess11"></sequenceFlow>
+    <sequenceFlow id="flow22" name="Rejected" sourceRef="subProcess9" targetRef="subProcess5"></sequenceFlow>
+    <sequenceFlow id="flow23" name="Branch 5" sourceRef="gateway1" targetRef="subProcess8"></sequenceFlow>
+    <sequenceFlow id="flow24" name="BU Rejected" sourceRef="subProcess12" targetRef="subProcess5"></sequenceFlow>
+    <sequenceFlow id="flow25" name="Branch 1" sourceRef="gateway7" targetRef="subProcess9"></sequenceFlow>
+    <sequenceFlow id="flow26" name="[Always]" sourceRef="subProcess8" targetRef="gateway0"></sequenceFlow>
+    <sequenceFlow id="flow27" name="Rejected" sourceRef="subProcess6" targetRef="subProcess5"></sequenceFlow>
+    <sequenceFlow id="flow28" name="[Else]" sourceRef="gateway7" targetRef="subProcess12"></sequenceFlow>
+    <sequenceFlow id="flow29" name="Branch 7" sourceRef="gateway0" targetRef="subProcess2"></sequenceFlow>
+    <sequenceFlow id="flow30" name="[Always]" sourceRef="subProcess5" targetRef="gateway7"></sequenceFlow>
+    <sequenceFlow id="flow31" name="[Else]" sourceRef="gateway6" targetRef="gateway1"></sequenceFlow>
+    <sequenceFlow id="flow33" name="[Always]" sourceRef="subProcess11" targetRef="gateway5"></sequenceFlow>
+    <sequenceFlow id="flow34" name="Branch 4" sourceRef="gateway6" targetRef="serviceTask0"></sequenceFlow>
+    <sequenceFlow id="flow35" name="Always" sourceRef="gateway5" targetRef="subProcess2"></sequenceFlow>
+    <sequenceFlow id="flow36" name="Approved" sourceRef="subProcess7" targetRef="subProcess0"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_convertedProcess">
+    <bpmndi:BPMNPlane bpmnElement="convertedProcess" id="BPMNPlane_convertedProcess"></bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
