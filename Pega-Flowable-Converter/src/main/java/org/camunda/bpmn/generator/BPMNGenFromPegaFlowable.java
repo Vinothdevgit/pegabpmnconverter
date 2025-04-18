@@ -2,6 +2,7 @@ package org.camunda.bpmn.generator;
 
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.*;
+import org.flowable.bpmn.model.Process;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -10,7 +11,7 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.*;
 
 public class BPMNGenFromPegaFlowable {
 
@@ -30,87 +31,26 @@ public class BPMNGenFromPegaFlowable {
         XPath xpath = XPathFactory.newInstance().newXPath();
 
         BpmnModel bpmnModel = new BpmnModel();
-        org.flowable.bpmn.model.Process process = new org.flowable.bpmn.model.Process();
+        Process process = new Process();
         process.setId("convertedProcess");
         process.setName("Pega Converted Process");
         process.setExecutable(true);
         bpmnModel.addProcess(process);
 
-        HashMap<String, String> idMap = new HashMap<>();
+        Map<String, String> idMap = new HashMap<>();
+        Map<String, FlowElement> elementMap = new HashMap<>();
+        double x = 100;
+        double y = 100;
+        double spacing = 200;
+        int index = 0;
 
-        // Start Events
-        XPathExpression startExpr = xpath.compile("//*[pyShapeType='Data-MO-Event-Start']");
-        NodeList startList = (NodeList) startExpr.evaluate(doc, XPathConstants.NODESET);
-        for (int i = 0; i < startList.getLength(); i++) {
-            Node parent = startList.item(i);
-            StartEvent startEvent = new StartEvent();
-            startEvent.setId("startEvent" + i);
-            startEvent.setName(getNodeValue(parent, xpath, "pyMOName"));
-            process.addFlowElement(startEvent);
-            idMap.put(getNodeValue(parent, xpath, "pyMOId"), startEvent.getId());
-        }
+        index = addNodes(process, bpmnModel, doc, xpath, "Data-MO-Event-Start", StartEvent::new, "startEvent", x, y, index, spacing, idMap, elementMap);
+        index = addNodes(process, bpmnModel, doc, xpath, "Data-MO-Activity-Assignment", UserTask::new, "userTask", x, y, index, spacing, idMap, elementMap);
+        index = addNodes(process, bpmnModel, doc, xpath, "Data-MO-Activity-SubProcess", SubProcess::new, "subProcess", x, y, index, spacing, idMap, elementMap);
+        index = addNodes(process, bpmnModel, doc, xpath, "Data-MO-Activity-Utility", ServiceTask::new, "serviceTask", x, y, index, spacing, idMap, elementMap);
+        index = addNodes(process, bpmnModel, doc, xpath, "Data-MO-Gateway-Decision", ExclusiveGateway::new, "gateway", x, y, index, spacing, idMap, elementMap);
+        index = addNodes(process, bpmnModel, doc, xpath, "Data-MO-Event-End", EndEvent::new, "endEvent", x, y, index, spacing, idMap, elementMap);
 
-        // User Tasks
-        XPathExpression taskExpr = xpath.compile("//*[pyShapeType='Data-MO-Activity-Assignment']");
-        NodeList taskList = (NodeList) taskExpr.evaluate(doc, XPathConstants.NODESET);
-        for (int i = 0; i < taskList.getLength(); i++) {
-            Node parent = taskList.item(i);
-            UserTask userTask = new UserTask();
-            userTask.setId("userTask" + i);
-            userTask.setName(getNodeValue(parent, xpath, "pyMOName"));
-            process.addFlowElement(userTask);
-            idMap.put(getNodeValue(parent, xpath, "pyMOId"), userTask.getId());
-        }
-
-        // SubProcesses
-        XPathExpression subExpr = xpath.compile("//*[pyShapeType='Data-MO-Activity-SubProcess']");
-        NodeList subList = (NodeList) subExpr.evaluate(doc, XPathConstants.NODESET);
-        for (int i = 0; i < subList.getLength(); i++) {
-            Node parent = subList.item(i);
-            SubProcess subProcess = new SubProcess();
-            subProcess.setId("subProcess" + i);
-            subProcess.setName(getNodeValue(parent, xpath, "pyMOName"));
-            process.addFlowElement(subProcess);
-            idMap.put(getNodeValue(parent, xpath, "pyMOId"), subProcess.getId());
-        }
-
-        // Service Tasks
-        XPathExpression serviceExpr = xpath.compile("//*[pyShapeType='Data-MO-Activity-Utility']");
-        NodeList serviceList = (NodeList) serviceExpr.evaluate(doc, XPathConstants.NODESET);
-        for (int i = 0; i < serviceList.getLength(); i++) {
-            Node parent = serviceList.item(i);
-            ServiceTask serviceTask = new ServiceTask();
-            serviceTask.setId("serviceTask" + i);
-            serviceTask.setName(getNodeValue(parent, xpath, "pyMOName"));
-            process.addFlowElement(serviceTask);
-            idMap.put(getNodeValue(parent, xpath, "pyMOId"), serviceTask.getId());
-        }
-
-        // Exclusive Gateways
-        XPathExpression gatewayExpr = xpath.compile("//*[pyShapeType='Data-MO-Gateway-Decision']");
-        NodeList gatewayList = (NodeList) gatewayExpr.evaluate(doc, XPathConstants.NODESET);
-        for (int i = 0; i < gatewayList.getLength(); i++) {
-            Node parent = gatewayList.item(i);
-            ExclusiveGateway gateway = new ExclusiveGateway();
-            gateway.setId("gateway" + i);
-            gateway.setName(getNodeValue(parent, xpath, "pyMOName"));
-            process.addFlowElement(gateway);
-            idMap.put(getNodeValue(parent, xpath, "pyMOId"), gateway.getId());
-        }
-
-        // End Events
-        XPathExpression endExpr = xpath.compile("//*[pyShapeType='Data-MO-Event-End']");
-        NodeList endList = (NodeList) endExpr.evaluate(doc, XPathConstants.NODESET);
-        for (int i = 0; i < endList.getLength(); i++) {
-            Node parent = endList.item(i);
-            EndEvent endEvent = new EndEvent();
-            endEvent.setId("endEvent" + i);
-            endEvent.setName(getNodeValue(parent, xpath, "pyMOName"));
-            process.addFlowElement(endEvent);
-            idMap.put(getNodeValue(parent, xpath, "pyMOId"), endEvent.getId());
-        }
-
-        // Sequence Flows
         XPathExpression seqExpr = xpath.compile("//*[pxObjClass='Data-MO-Connector-Transition']");
         NodeList sequenceList = (NodeList) seqExpr.evaluate(doc, XPathConstants.NODESET);
         for (int i = 0; i < sequenceList.getLength(); i++) {
@@ -132,13 +72,58 @@ public class BPMNGenFromPegaFlowable {
             sf.setTargetRef(targetRef);
             sf.setName(getNodeValue(parent, xpath, "pyMOName"));
             process.addFlowElement(sf);
+
+            GraphicInfo src = bpmnModel.getGraphicInfo(sourceRef);
+            GraphicInfo tgt = bpmnModel.getGraphicInfo(targetRef);
+            if (src != null && tgt != null) {
+                List<GraphicInfo> line = new ArrayList<>();
+                GraphicInfo p1 = new GraphicInfo();
+                p1.setX(src.getX() + 50);
+                p1.setY(src.getY() + 25);
+                line.add(p1);
+                GraphicInfo p2 = new GraphicInfo();
+                p2.setX(tgt.getX());
+                p2.setY(tgt.getY() + 25);
+                line.add(p2);
+                bpmnModel.addFlowGraphicInfoList(sf.getId(), line);
+            }
         }
 
-        // Write BPMN to file
         BpmnXMLConverter converter = new BpmnXMLConverter();
         byte[] xmlBytes = converter.convertToXML(bpmnModel);
         Files.write(Paths.get(args[1]), xmlBytes);
-        System.out.println("✅ Successfully converted Pega BPMN to Flowable XML: " + args[1]);
+        System.out.println("✅ BPMN diagram created at: " + args[1]);
+    }
+
+    private static int addNodes(Process process, BpmnModel model, Document doc, XPath xpath, String pegaType,
+                                ElementFactory factory, String prefix, double startX, double startY, int index, double spacing,
+                                Map<String, String> idMap, Map<String, FlowElement> elementMap) throws Exception {
+        XPathExpression expr = xpath.compile("//*[pyShapeType='" + pegaType + "']");
+        NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+
+        int rowSize = 5;
+        for (int i = 0; i < list.getLength(); i++) {
+            Node parent = list.item(i);
+            FlowElement element = factory.create();
+            String id = prefix + index;
+            element.setId(id);
+            element.setName(getNodeValue(parent, xpath, "pyMOName"));
+            process.addFlowElement(element);
+            idMap.put(getNodeValue(parent, xpath, "pyMOId"), id);
+            elementMap.put(id, element);
+
+            int row = index / rowSize;
+            int col = index % rowSize;
+
+            GraphicInfo gi = new GraphicInfo();
+            gi.setX(startX + col * spacing);
+            gi.setY(startY + row * spacing);
+            gi.setWidth(100);
+            gi.setHeight(50);
+            model.addGraphicInfo(id, gi);
+            index++;
+        }
+        return index;
     }
 
     private static String getNodeValue(Node parent, XPath xpath, String tag) throws XPathExpressionException {
@@ -148,5 +133,9 @@ public class BPMNGenFromPegaFlowable {
             return list.item(0).getTextContent();
         }
         return "";
+    }
+
+    interface ElementFactory {
+        FlowElement create();
     }
 }
